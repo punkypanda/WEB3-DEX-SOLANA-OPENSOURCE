@@ -158,7 +158,7 @@ pub fn buy<'a>(
     offset: &mut usize,
     hop_accounts: &mut HopAccounts,
     hop: usize,
-    proxy_swap: bool,
+    _proxy_swap: bool,
 ) -> Result<u64> {
     msg!(
         "Dex::Pumpfun amount_in: {}, offset: {}",
@@ -174,16 +174,6 @@ pub fn buy<'a>(
     if swap_accounts.dex_program_id.key != &pumpfun_program::id() {
         return Err(ErrorCode::InvalidProgramId.into());
     }
-
-    pumpfun_before_check(
-        swap_accounts.swap_authority_pubkey,
-        swap_accounts.swap_source_token.key(),
-        *(swap_accounts.swap_source_token.clone()),
-        swap_accounts.swap_destination_token.key(),
-        hop_accounts,
-        hop,
-        proxy_swap,
-    )?;
 
     let real_amount_in = amount_in.checked_mul(980009).unwrap().checked_div(1000000).unwrap();
     let amount_out = swap_accounts.cal_token_amount_out(real_amount_in)? as u64;
