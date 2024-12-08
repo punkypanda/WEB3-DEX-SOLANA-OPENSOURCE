@@ -178,7 +178,7 @@ pub fn buy<'a>(
     pumpfun_before_check(
         swap_accounts.swap_authority_pubkey,
         swap_accounts.swap_source_token.key(),
-        swap_accounts.swap_source_token.clone(),
+        *(swap_accounts.swap_source_token.clone()),
         swap_accounts.swap_destination_token.key(),
         hop_accounts,
         hop,
