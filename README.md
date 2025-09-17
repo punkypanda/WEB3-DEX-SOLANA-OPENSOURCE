@@ -1,41 +1,38 @@
-# xest-ai-dex
+# AI DEX (WEB3-DEX-SOLANA-OPENSOURCE)
 
-xest-ai-dex est un DEX (version 1) sur Solana avec intégration AI prévue pour vérification automatique et analyses.
+Branche: feature/full-create-token-flow
 
-Structure du dépôt
+Ce dépôt propose un scaffold pour AI DEX — un prototype de DEX sur Solana qui inclut :
+- contracts/ : Anchor program skeleton (config, token record, squelettes swap/liquidity)
+- frontend/ : React + Tailwind pages pour Swap, Create Token, Explorer
+- backend/ : Node.js/Express API pour price lookup, verify-fee, create-token (stockage en mémoire pour le prototype)
+- scripts/ : init_config.ts pour initialiser le compte config on-chain avec l'admin
 
-- contracts/ : Programme Anchor (Rust) — logique minimale pour pools, swap, lock
-- frontend/  : dApp React + Tailwind (Phantom, Solflare)
-- backend/   : Node.js + Express pour la logique off-chain (paiement des frais, enregistrement des tokens)
+Admin wallet (par défaut) : 38sMTofCQyAjPGC1eHqjykr9C1ZWv7RdqbxJ87z44b18
 
-Nom du projet : xest-ai-dex
-Réseau de développement recommandé : devnet
+Notes importantes :
+- Pour V1, la création effective du mint est recommandée côté client (wallet), afin d'éviter d'exposer une clé privée côté serveur.
+- Le contrat Anchor contient la logique de configuration et l'enregistrement des tokens créés. Les fonctions AMM (swap, add_liquidity) sont des squelettes et doivent être complétées (pricing math, CPIs vers SPL Token, pool accounts).
+- La vérification du paiement 5 USD se fait en backend via la route /api/verify-fee qui analyse la transaction et confirme que l'admin a bien reçu l'équivalent en SOL.
+- Pour la production : remplacer le tokenStore en mémoire par une DB (Postgres), utiliser Pyth ou autre oracle on-chain pour prix SOL/USD si besoin, et ajouter des vérifications de sécurité.
 
-Configuration requise avant déploiement
+Étapes pour tester localement :
+1) contracts :
+   - installer Anchor et Rust
+   - anchor build
+   - déployer le programme (anchor deploy) et mettre PROGRAM_ID en env
+   - run `ts-node scripts/init_config.ts` pour initialiser la config avec ADMIN_WALLET
 
-- ADMIN_WALLET : adresse publique Solana qui recevra les frais de création et la part des fees de swap.
-- NETWORK : URL RPC Solana (par défaut https://api.devnet.solana.com)
-- ANCHOR_PROVIDER_URL et ANCHOR_WALLET pour la compilation / déploiement Anchor
-- PROGRAM_ID : remplacer le placeholder dans contracts/Anchor.toml après déploiement
+2) backend :
+   - cd backend && npm install
+   - cp .env.example .env et ajuster
+   - node index.js
 
-Mode de création de token (recommandé)
+3) frontend :
+   - cd frontend && npm install
+   - set REACT_APP_BACKEND_URL et REACT_APP_ADMIN_WALLET si nécessaire
+   - npm start
 
-- Mode A (recommandé) : l'utilisateur signe la transaction de création du mint et paie les frais (backend vérifie et enregistre). Pas de clé privée stockée côté serveur.
-- Mode B : backend/deployer crée les mints (nécessite stockage sécurisé de la clé privée du deployer)
-
-Frais
-
-- Frais de création des tokens : 5 USD (en SOL ou USDC). Conversion USD->SOL via oracle (Pyth) ou Coingecko en fallback.
-- Frais de swap : 0.3% par trade. Répartition configurable (par défaut : 50% au pool, 50% à ADMIN_WALLET).
-
-Sécurité
-
-- Pipeline de vérification : cargo-audit, tests unitaires, linter. Option d'analyse AI (service externe) pour repérer patterns dangereux.
-- Lock de liquidité : option pour verrouiller LP pour une durée donnée.
-
-Déploiement rapide
-
-1. Configurez ADMIN_WALLET et NETWORK dans le backend (fichier .env ou variables d'environnement).
-2. Déployer le programme Anchor : mettre PROGRAM_ID dans contracts/Anchor.toml.
-3. Lancer backend : cd backend && npm install && npm start
-4. Lancer frontend : cd frontend && npm install && npm run dev
+Si tu veux, je peux maintenant :
+- pousser ces fichiers dans la branche feature/full-create-token-flow et ouvrir une PR,
+- ou mettre à jour d'autres occurrences (backend package.json, README plus détaillé, meta tags supplémentaires).
