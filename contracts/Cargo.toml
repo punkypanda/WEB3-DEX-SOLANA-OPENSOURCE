@@ -1,0 +1,12 @@
+[package]
+name = "web3_dex"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "web3_dex"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+anchor-lang = "0.28.0"
+anchor-spl = "0.28.0"
